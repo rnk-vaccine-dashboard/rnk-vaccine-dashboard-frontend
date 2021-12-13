@@ -46,7 +46,13 @@ const Home: NextPage<HomePageProps> = (props) => {
       </Head>
 
       <main className={styles.main}>
-        <input type="search" onChange={(e) => onSearch(e.target.value) } />
+        <h1>Impftermin Dashboard für den Rhein-Neckar-Kreis, Stadtkreis Heidelberg und Landkreis Karlsruhe</h1>
+        <div className={styles.searchWrapper}>
+          <label>
+            <span>Impfzenten durchsuchen:</span>
+            <input type="search" onChange={(e) => onSearch(e.target.value) } placeholder="Suchbegriff eingeben" />
+          </label>
+        </div>
         <StatusLine isHeading>
           <p>Zentrum</p>
           <p style={{textAlign: 'center'}}>Biontech</p>

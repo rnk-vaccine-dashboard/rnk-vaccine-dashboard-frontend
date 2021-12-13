@@ -18,3 +18,29 @@
 .dashboardTable {
   max-width: 800px;
 }
+
+.searchWrapper {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  margin-bottom: 20px;
+  gap: 20px;
+
+}
+
+.searchWrapper label {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.searchWrapper label span {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.searchWrapper input {
+  height: 30px;
+  padding: 20px;
+  font-size: 18px;
+}
