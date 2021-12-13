@@ -1,4 +1,4 @@
-import { GetServerSideProps, NextPage } from 'next'
+import { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -15,7 +15,6 @@ interface HomePageProps {
 const Home: NextPage<HomePageProps> = (props) => {
   const { data: { centers} } = props.dashboardData
   const centersData = centers ? centers.data : []
-  console.log({centersData})
 
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
   const [searchTerm, setSearchTerm] = useState<string>('')
@@ -88,13 +87,14 @@ export default Home
 
 
 // serverside props
-export const getServerSideProps: GetServerSideProps = async (context) => {
+export const getStaticProps: GetStaticProps = async (context) => {
 
   const dashboardData = await getDashboardData();
   
   return {
     props: {
       dashboardData
-    }
+    },
+    revalidate: 30,
   }
 }
