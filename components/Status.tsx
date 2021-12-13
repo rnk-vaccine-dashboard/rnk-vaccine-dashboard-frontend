@@ -24,8 +24,8 @@ const Status : React.FC<StatusProps> = ({label, status, lastUpdated}) => {
 
 
 	return (
-		<a href="https://c19.rhein-neckar-kreis.de/impftermin" target="_blank" rel="noreferrer" className={`${styles.line} ${statusClass}`}>
-			<span className={styles.label}>{label}</span> {diffMinutes}
+		<a href="https://c19.rhein-neckar-kreis.de/impftermin" target="_blank" rel="noreferrer" className={`${styles.line} ${statusClass}`} title={`Zuletzt aktualisiert vor ${diffMinutes} ${ diffMinutes === 1 ? 'Minute' : 'Minuten'}`}>
+			<span className={styles.label}>{label}</span>
 		</a>
 	)
 }
