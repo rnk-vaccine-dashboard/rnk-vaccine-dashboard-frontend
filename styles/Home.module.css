@@ -34,6 +34,12 @@
   align-items: center;
 }
 
+@media (max-width: 790px) {
+  .searchWrapper label {
+    flex-direction: column;
+  }
+}
+
 .searchWrapper label span {
   font-size: 24px;
   font-weight: bold;
