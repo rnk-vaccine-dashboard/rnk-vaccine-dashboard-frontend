@@ -1,0 +1,32 @@
+.line {
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+}
+
+.line::before {
+	content: "";
+	display: block;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	margin-bottom: 5px;
+}
+
+.line span {
+	font-size: 14px;
+}
+
+.line.status-available::before {
+	background-color: #00a65a;
+}
+
+.line.status-unavailable::before {
+	background-color: #dd4b39;
+}
+
+.line.status-unknown::before {
+	background-color: #f39c12;
+}
