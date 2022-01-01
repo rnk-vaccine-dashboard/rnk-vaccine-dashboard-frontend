@@ -15,6 +15,11 @@
   align-items: center;
 }
 
+.main p {
+  width: 100%;
+  margin-bottom: 50px;
+}
+
 .dashboardTable {
   max-width: 800px;
 }

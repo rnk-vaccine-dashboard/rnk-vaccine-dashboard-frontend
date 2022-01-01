@@ -1,12 +1,13 @@
 import { GetStaticProps, NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import StatusLine from '../components/StatusLine'
 import Status from '../components/Status'
 import getDashboardData, { DashboardData } from '../data/getDashboardData'
 import { CenterData } from '../models/DashboardData'
 import styles from '../styles/Home.module.css'
+import { loadFilters, saveFilters } from '../helpers/saveFilters'
 
 interface HomePageProps {
   dashboardData: DashboardData
@@ -21,20 +22,49 @@ const Home: NextPage<HomePageProps> = (props) => {
   const [filteredItems, setFilteredItems] = useState<CenterData[]>([])
   const [filteredTargetGroups, setFilteredTargetGroups] = useState<null|'children'|'adults'>(null)
 
-  const onSearch = ( searchString : string ) => {
-    setSearchTerm(searchString)
-    console.log('onSearch', searchString)
+  /**
+   * Load saved filters from localStorage
+   */
+  useEffect(() => {
+    const savedFilters = loadFilters()
+    setSearchTerm(savedFilters.searchTerm)
+    setFilteredTargetGroups(savedFilters.targetGroups)
+  }, [setSearchTerm, setFilteredTargetGroups])
 
-    // if string empty
-    if (searchString === '') {
-      setIsFiltering(false)
-      console.log('not filtering')
-    } else {
+  useEffect(() => {
+    const isSearched = searchTerm !== ''
+    const isTargetGroupFiltered = filteredTargetGroups !== null
+
+    saveFilters({
+      searchTerm: searchTerm,
+      targetGroups: filteredTargetGroups
+    })
+
+    if (isSearched || isTargetGroupFiltered) {
       setIsFiltering(true)
-      console.log('is filtering')
-      setFilteredItems(centersData.filter(center => center.attributes.name.toLowerCase().includes(searchString.toLowerCase())))
+      setFilteredItems(
+        centersData.filter(center => {
+          if (isSearched) {
+            return center.attributes.name.toLowerCase().includes(searchTerm.toLowerCase())
+          } else {
+            return true
+          }
+        })
+        .filter(center => {
+          if (isTargetGroupFiltered) {
+            const targetGroups = center.attributes.targetGroups ?? 'adults'
+
+            return targetGroups === filteredTargetGroups
+          } else {
+            return true
+          }
+        })
+      )
+    } else {
+      setIsFiltering(false)
+      setFilteredItems([])
     }
-  }
+  }, [centersData, searchTerm, filteredTargetGroups])
 
   const centersToShow = isFiltering ? filteredItems : centersData
 
@@ -48,10 +78,14 @@ const Home: NextPage<HomePageProps> = (props) => {
 
       <main className={styles.main}>
         <h1>Impftermin Dashboard für den Rhein-Neckar-Kreis, Stadtkreis Heidelberg und Landkreis Karlsruhe</h1>
+        <p>
+          Diese Seite stellt die verfügbaren Termine von <a href="https://c19.rhein-neckar-kreis.de/impftermin" target="_blank" rel="noreferrer" >c19.rhein-neckar-kreis.de/impftermin</a> in einem Dashboard dar.<br />
+          Die Terminbuchung erfolgt weiterhin über die Website des Rhein-Neckar-Kreis <a href="https://c19.rhein-neckar-kreis.de/impftermin" target="_blank" rel="noreferrer" >c19.rhein-neckar-kreis.de/impftermin</a>
+        </p>
         <div className={styles.searchWrapper}>
           <label>
             <span>Impfzenten durchsuchen:</span>
-            <input type="search" onChange={(e) => onSearch(e.target.value) } placeholder="Suchbegriff eingeben" />
+            <input type="search" onChange={(e) => setSearchTerm(e.target.value) } placeholder="Suchbegriff eingeben" />
           </label>
         </div>
         <div className={styles.targetGroupFilterWrapper}>
@@ -77,25 +111,11 @@ const Home: NextPage<HomePageProps> = (props) => {
               centersToShow.map((center: any) => {
                 const { id, attributes: { name, biontechStatus, modernaStatus, johnsonStatus, targetGroups } } = center
 
-                // filter out wrong target groups
-                if ( filteredTargetGroups !== null ) { 
-
-                  if (
-                    ( filteredTargetGroups === 'children' && targetGroups !== 'children' )
-                    || ( filteredTargetGroups === 'adults' && targetGroups === 'children' )
-                  ) {
-                  
-                    return null
-                  }
-                }
-
                 if( ! biontechStatus.data[0] ) return null;
 
                 const biontechAvailable = biontechStatus.data[0].attributes.isAvailable
                 const modernaAvailable = modernaStatus.data[0].attributes.isAvailable
                 const johnsonAvailable = johnsonStatus.data[0].attributes.isAvailable
-
-                const createdAt = biontechStatus.data[0].attributes.createdAt
                 
                 return (
                   <StatusLine key={`center-line-${id}`}>
