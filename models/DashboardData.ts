@@ -10,6 +10,7 @@ export interface CenterData {
 	attributes: {
 		name: string
 		centerId: number
+		targetGroups: string | null
 		biontechStatus?: {
 			data: AvailabilityStatusData[]
 		}

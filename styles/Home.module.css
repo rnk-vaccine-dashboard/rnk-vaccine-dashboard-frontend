@@ -50,3 +50,30 @@
   padding: 20px;
   font-size: 18px;
 }
+
+.targetGroups {
+  margin-left: 10px;
+  color: rgb(100,100,100);
+}
+
+
+.targetGroupFilterWrapper {
+  width: 100%;
+  max-width: 1000px;
+  display: flex;
+  margin-bottom: 20px;
+  gap: 20px;
+  align-items: center;
+}
+
+.targetGroupFilterWrapper button {
+  background-color: transparent;
+  padding: 10px 20px;
+  border: 3px solid currentColor;
+  cursor: pointer;
+}
+
+.targetGroupFilterWrapper .isSelected {
+  color: green;
+  text-decoration: underline;
+}

@@ -27,6 +27,7 @@ const getDashboardData = () : Promise<DashboardData> => {
 				attributes {
 					name
 					centerId
+					targetGroups
 					biontechStatus: availability_statuses(
 						pagination: {limit: 1},
 						sort: "createdAt:DESC",

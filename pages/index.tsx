@@ -19,6 +19,7 @@ const Home: NextPage<HomePageProps> = (props) => {
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
   const [searchTerm, setSearchTerm] = useState<string>('')
   const [filteredItems, setFilteredItems] = useState<CenterData[]>([])
+  const [filteredTargetGroups, setFilteredTargetGroups] = useState<null|'children'|'adults'>(null)
 
   const onSearch = ( searchString : string ) => {
     setSearchTerm(searchString)
@@ -53,6 +54,19 @@ const Home: NextPage<HomePageProps> = (props) => {
             <input type="search" onChange={(e) => onSearch(e.target.value) } placeholder="Suchbegriff eingeben" />
           </label>
         </div>
+        <div className={styles.targetGroupFilterWrapper}>
+          <h2>Zielgruppe</h2>
+          <button className={ null === filteredTargetGroups ? styles.isSelected : '' } onClick={() => setFilteredTargetGroups(null)} >
+            <span>Alle ansehen</span>
+          </button>
+          <button className={ 'adults' === filteredTargetGroups ? styles.isSelected : '' } onClick={() => setFilteredTargetGroups('adults')} >
+            <span>Für Erwachsene</span>
+          </button>
+          <button className={ 'children' === filteredTargetGroups ? styles.isSelected : '' } onClick={() => setFilteredTargetGroups('children')} >
+            <span>Für Kinder</span>
+          </button>
+        </div>
+        
         <StatusLine isHeading>
           <p>Zentrum</p>
           <p style={{textAlign: 'center'}}>Biontech</p>
@@ -61,7 +75,22 @@ const Home: NextPage<HomePageProps> = (props) => {
         </StatusLine>
             {
               centersToShow.map((center: any) => {
-                const { id, attributes: { name, biontechStatus, modernaStatus, johnsonStatus } } = center
+                const { id, attributes: { name, biontechStatus, modernaStatus, johnsonStatus, targetGroups } } = center
+
+                // filter out wrong target groups
+                if ( filteredTargetGroups !== null ) { 
+
+                  if (
+                    ( filteredTargetGroups === 'children' && targetGroups !== 'children' )
+                    || ( filteredTargetGroups === 'adults' && targetGroups === 'children' )
+                  ) {
+                  
+                    return null
+                  }
+                }
+
+                if( ! biontechStatus.data[0] ) return null;
+
                 const biontechAvailable = biontechStatus.data[0].attributes.isAvailable
                 const modernaAvailable = modernaStatus.data[0].attributes.isAvailable
                 const johnsonAvailable = johnsonStatus.data[0].attributes.isAvailable
@@ -70,10 +99,21 @@ const Home: NextPage<HomePageProps> = (props) => {
                 
                 return (
                   <StatusLine key={`center-line-${id}`}>
-                    <p>{name}</p>
+                    <p>
+                      {name}
+                      <span className={styles.targetGroups} >
+                        {targetGroups === 'children' ? `Kinder` : 'Erwachsene'}
+                      </span>
+                    </p>
                     <Status label="Biontech" status={biontechAvailable ? 'available' : 'unavailable'} lastUpdated={ biontechStatus.data[0].attributes.createdAt } />
-                    <Status label="Moderna" status={modernaAvailable ? 'available' : 'unavailable'} lastUpdated={ modernaStatus.data[0].attributes.createdAt }  />
-                    <Status label="Johnson & Johnson" status={johnsonAvailable ? 'available' : 'unavailable'} lastUpdated={ johnsonStatus.data[0].attributes.createdAt }  />
+                    {
+                      targetGroups !== 'children' && (
+                        <>
+                          <Status label="Moderna" status={modernaAvailable ? 'available' : 'unavailable'} lastUpdated={ modernaStatus.data[0].attributes.createdAt }  />
+                          <Status label="Johnson & Johnson" status={johnsonAvailable ? 'available' : 'unavailable'} lastUpdated={ johnsonStatus.data[0].attributes.createdAt }  />
+                        </>
+                      )
+                    }
                   </StatusLine>
                 )
               })
